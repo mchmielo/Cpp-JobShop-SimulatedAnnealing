@@ -16,6 +16,7 @@ problem_gniazdowy::problem_gniazdowy()
     ci = NULL;
     lp = NULL;
     T = NULL;
+	ph = NULL;
     n = 0;
     m = 0;
     z = 0;
@@ -44,6 +45,9 @@ problem_gniazdowy::~problem_gniazdowy()
     if( T != NULL){
         delete T;
     }
+	if (ph != NULL){
+		delete ph;
+	}
 }
 
 bool problem_gniazdowy::readFile(string file)
@@ -184,14 +188,17 @@ void problem_gniazdowy::logClass()
     for(int j = 0; j <= this->n; ++j){
         cout << this->ci[j] << " ";
     }
+	cout << endl << "ph:" << endl;
+	for (int j = 0; j <= this->n; ++j){
+		cout << this->ph[j] << " ";
+	}
+}
+void problem_gniazdowy::evalPH(int i){
+	ph[i] = (ci[this->pi[ps[i] - 1]] > ci[T[i - 1]]) ? this->pi[ps[i] - 1] : T[i - 1];
 }
 
 void problem_gniazdowy::evalCi(int i)
 {
-    int ps_1 = ps[i-1];
-    int cz = czasi[i];
-    int el1 = ci[this->pi[ps[i]-1]];
-    int el2 = ci[T[i-1]];
     ci[i] = max(ci[this->pi[ps[i]-1]], ci[T[i-1]]) + czasi[i];      // poprzednik maszynowy
 }
 
@@ -206,6 +213,7 @@ void problem_gniazdowy::createSchedule()
     while(!Q.empty()){
         int i = Q.front(), ns, count = 0;
         evalCi(i);
+		evalPH(i);
         Q.pop();
         ns = ti[i];		//nastepnik technologiczny
         do{

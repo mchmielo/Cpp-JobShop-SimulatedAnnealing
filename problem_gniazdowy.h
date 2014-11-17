@@ -67,6 +67,10 @@ public:
 	*/
     void logClass();
 	/*!
+	* \brief Obliczanie œcie¿ki krytycznej
+	*/
+	void evalPH(int i);
+	/*!
 	* \brief Metoda pomocnicza funkcji problem_gniazdowy::createSchedule().
 	* Oblicza czas zakoñczenia ::i -tej operacji: c_max(i) = max(T[i-1],pi[ps[i]-1])+czas_wykonywania
 	* gdzie T[i-1] to poprzednik technologiczny, pi[ps[i]-1] to poprzednik maszynowy.

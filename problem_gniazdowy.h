@@ -22,7 +22,9 @@ private:
     int *ps;    /** pozycje i-tych operacji w tabeli permutacji */
     int *lp;    /** poprzedniki */
     int *ci;    /** czas zakonczenia i-tej operacji */
-	int *ph;	/** œcie¿ka krytyczna*/
+	int *ph;	/** tablica pomocnicza w wyznaczaniu œcie¿ki krytycznej*/
+	int *cPath;	/** œcie¿ka krytyczna*/
+	int *cPathColor;	/** tablica zapamiêtuj¹ca pocz¹tek i koniec bloku: -1 pocz¹tek bloku, 1 koniec bloku */
 public:
     /*!
      * \brief problem_gniazdowy - konstruktor bezparametryczny
@@ -81,6 +83,10 @@ public:
 	* \brief Metoda tworz¹ca harmonogram dla danej permutacji.
 	*/
     void createSchedule();
+	int findMaxCi();
+	void createCPath();
+	void createBlocks();
+
 };
 
 #endif // PROBLEM_GNIAZDOWY_H

@@ -17,6 +17,8 @@ problem_gniazdowy::problem_gniazdowy()
     lp = NULL;
     T = NULL;
 	ph = NULL;
+	cPath = NULL;
+	cPathColor = NULL;
     n = 0;
     m = 0;
     z = 0;
@@ -47,6 +49,12 @@ problem_gniazdowy::~problem_gniazdowy()
     }
 	if (ph != NULL){
 		delete ph;
+	}
+	if (cPath != NULL){
+		delete cPath;
+	}
+	if (cPathColor != NULL){
+		delete cPathColor;
 	}
 }
 
@@ -226,5 +234,51 @@ void problem_gniazdowy::createSchedule()
             count++;
         }while(count < 2);	// trzeba wszystko powtorzyc dla nastepnika maszynowego
     }
+}
+int problem_gniazdowy::findMaxCi(){
+	int max = 0, max_i = 0;
+	for (int i = 0; i <= this->n; ++i){
+		if (ci[i] > max){
+			max = ci[i];
+			max_i =i;
+		}
+	}
+	return max_i;
+}
+
+void problem_gniazdowy::createCPath(){
+	int count = 1, maxCi = findMaxCi(), tmp;
+	tmp = maxCi;
+	while (ph[tmp] != 0){				// zliczenie elementow w œcie¿ce krytycznej
+		tmp = ph[tmp];
+		count++;
+	}
+	if (this->cPath != NULL)
+		delete this->cPath;
+	if (this->cPathColor != NULL)
+		delete this->cPathColor;
+											// alokacja potrzebnej pamieci dla sciezki krytycznej
+	this->cPath = new int[count+3];			// w tym element 0 jest liczb¹ elmentów sk, element drugi i ostatni s¹ zerami
+	this->cPathColor = new int[count];		// i blokow
+	for (int i = 0; i < count; ++i){
+		cPathColor[i] = 0;
+	}
+	cPath[0] = count;
+	cPath[1] = 0;
+	cPath[count + 2] = 0;
+	cPath[count + 1] = maxCi;
+	while (ph[cPath[count + 1]] != 0 && count > 0){
+		cPath[count] = ph[cPath[count + 1]];
+		count--;
+	}
+}
+
+void problem_gniazdowy::createBlocks(){
+	for (int i = 2; i < (cPath[0] + 2); ++i){
+		if ((cPath[i + 1] != 0) && (cPath[i + 1] != ti[cPath[i]]) && (pi[ps[cPath[i]] + 1] == cPath[i + 1]))		// pocz¹tek bloku
+			cPathColor[i - 2] = 1;
+		if ((cPath[i - 1] != 0) && (cPath[i - 1] != T[cPath[i] - 1]) && (pi[ps[cPath[i]] - 1] == cPath[i - 1]))		// koniec bloku
+			cPathColor[i - 2] = -1;
+	}
 }
 

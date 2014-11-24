@@ -79,11 +79,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="problem_gniazdowy.cpp" />
+    <ClCompile Include="job_shop.cpp" />
+    <ClCompile Include="simulated_annealing.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="problem_gniazdowy.h" />
+    <ClInclude Include="job_shop.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="simulated_annealing.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ODPP_1.rc" />

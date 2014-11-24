@@ -1,5 +1,5 @@
 
-#include "problem_gniazdowy.h"
+#include "job_shop.h"
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -7,7 +7,7 @@
 
 using namespace std;
 
-problem_gniazdowy::problem_gniazdowy()
+job_shop::job_shop()
 {
     pi = NULL;
     ti = NULL;
@@ -19,12 +19,14 @@ problem_gniazdowy::problem_gniazdowy()
 	ph = NULL;
 	cPath = NULL;
 	cPathColor = NULL;
+	cPathIndexes = NULL;
     n = 0;
     m = 0;
     z = 0;
+	blockSwaps = 0;
 }
 
-problem_gniazdowy::~problem_gniazdowy()
+job_shop::~job_shop()
 {
     if( pi != NULL){
         delete pi;
@@ -56,9 +58,12 @@ problem_gniazdowy::~problem_gniazdowy()
 	if (cPathColor != NULL){
 		delete cPathColor;
 	}
+	if (cPathIndexes!= NULL){
+		delete cPathIndexes;
+	}
 }
 
-bool problem_gniazdowy::readFile(string file)
+bool job_shop::readFile(string file)
 {
     fstream inFile;
     inFile.open(file.c_str(), ios::in);
@@ -107,7 +112,7 @@ bool problem_gniazdowy::readFile(string file)
 
 }
 
-void problem_gniazdowy::createPi()
+void job_shop::createPi()
 {
     this->n = this->m * this->z;
     this->pi = new int[this->n+this->m+1];
@@ -132,7 +137,7 @@ void problem_gniazdowy::createPi()
     this->czasi[0] = 0;
 }
 
-void problem_gniazdowy::makeTi()
+void job_shop::makeTi()
 {
     for(int i = 1; i <= this->n; ++i){
         if((i-1)%this->m != 0){
@@ -144,7 +149,7 @@ void problem_gniazdowy::makeTi()
     }
 }
 
-void problem_gniazdowy::makeLp()
+void job_shop::makeLp()
 {
     int indexes = -1;						// indeksy ktore nalezy w kolejnej petli inkrementowac
     for(int i = this->n; i > 0; --i){		// iteracja od tylu po nastêpnikach technologicznych
@@ -168,7 +173,7 @@ void problem_gniazdowy::makeLp()
     }
 }
 
-void problem_gniazdowy::logClass()
+void job_shop::logClass()
 {
     cout << endl << "pi: " << endl;
     for(int j = 0; j < this->n+this->m+1; ++j){
@@ -201,16 +206,16 @@ void problem_gniazdowy::logClass()
 		cout << this->ph[j] << " ";
 	}
 }
-void problem_gniazdowy::evalPH(int i){
+void job_shop::evalPH(int i){
 	ph[i] = (ci[this->pi[ps[i] - 1]] > ci[T[i - 1]]) ? this->pi[ps[i] - 1] : T[i - 1];
 }
 
-void problem_gniazdowy::evalCi(int i)
+void job_shop::evalCi(int i)
 {
     ci[i] = max(ci[this->pi[ps[i]-1]], ci[T[i-1]]) + czasi[i];      // poprzednik maszynowy
 }
 
-void problem_gniazdowy::createSchedule()
+void job_shop::createSchedule()
 {
     queue<int> Q;			// kolejka z gotowymi operacjami
     for(int i = 1; i <= this->n; ++i){
@@ -235,7 +240,7 @@ void problem_gniazdowy::createSchedule()
         }while(count < 2);	// trzeba wszystko powtorzyc dla nastepnika maszynowego
     }
 }
-int problem_gniazdowy::findMaxCi(){
+int job_shop::findMaxCi(){
 	int max = 0, max_i = 0;
 	for (int i = 0; i <= this->n; ++i){
 		if (ci[i] > max){
@@ -246,7 +251,7 @@ int problem_gniazdowy::findMaxCi(){
 	return max_i;
 }
 
-void problem_gniazdowy::createCPath(){
+void job_shop::createCPath(){
 	int count = 1, maxCi = findMaxCi(), tmp;
 	tmp = maxCi;
 	while (ph[tmp] != 0){				// zliczenie elementow w œcie¿ce krytycznej
@@ -267,18 +272,54 @@ void problem_gniazdowy::createCPath(){
 	cPath[1] = 0;
 	cPath[count + 2] = 0;
 	cPath[count + 1] = maxCi;
-	while (ph[cPath[count + 1]] != 0 && count > 0){
+	while (ph[cPath[count + 1]] != 0 && count > 0){		// wyznaczanie œcie¿ki krytycznej
 		cPath[count] = ph[cPath[count + 1]];
 		count--;
 	}
 }
 
-void problem_gniazdowy::createBlocks(){
+void job_shop::createBlocks(){
+	int index = 0;
 	for (int i = 2; i < (cPath[0] + 2); ++i){
-		if ((cPath[i + 1] != 0) && (cPath[i + 1] != ti[cPath[i]]) && (pi[ps[cPath[i]] + 1] == cPath[i + 1]))		// pocz¹tek bloku
+		if ((cPath[i + 1] != 0) && (cPath[i + 1] != ti[cPath[i]]) && (pi[ps[cPath[i]] + 1] == cPath[i + 1])){		// pocz¹tek bloku
 			cPathColor[i - 2] = 1;
-		if ((cPath[i - 1] != 0) && (cPath[i - 1] != T[cPath[i] - 1]) && (pi[ps[cPath[i]] - 1] == cPath[i - 1]))		// koniec bloku
+			blockSwaps++;
+		}
+		if ((cPath[i - 1] != 0) && (cPath[i - 1] != T[cPath[i] - 1]) && (pi[ps[cPath[i]] - 1] == cPath[i - 1])){		// koniec bloku
 			cPathColor[i - 2] = -1;
+			blockSwaps++;
+		}
 	}
+	if (cPathIndexes != NULL){
+		delete cPathIndexes;
+	}
+	cPathIndexes = new int[blockSwaps];
+	for (int i = 0; i < cPath[0]; ++i){
+		if (cPathColor[i] != 0)
+			cPathIndexes[index++] = i;
+	}
+}
+
+void job_shop::swapBlocks(){
+	int rnd = (rand() % blockSwaps ) + 0;
+	int tmp, tmp1, tmp2;
+	tmp1 = cPath[cPathIndexes[rnd] + 2];						// losowy element do zamiany
+	tmp2 = cPath[cPathIndexes[rnd] + 2 + cPathColor[cPathIndexes[rnd]]];	// nastêpny (pocz¹tek bloku) lub poprzedni (koniec bloku) element
+	tmp = pi[ps[tmp1]];							// zamiana elementów w permutacji
+	pi[ps[tmp1]] = pi[ps[tmp2]];
+	pi[ps[tmp2]] = tmp;
+	tmp = ps[tmp1];								// zamiana elementów w ps
+	ps[tmp1] = ps[tmp2];
+	ps[tmp2] = tmp;
+	tmp = czasi[tmp1];							//zamiana czasów
+	czasi[tmp1] = czasi[tmp2];
+	czasi[tmp2] = tmp;
+	for (int i = 0; i < n + 1; ++i){			//przygotowanie pozosta³ych tabel do aktualizacji
+		ti[i] = 0;
+		T[i] = 0;
+		lp[i] = 0;
+	}
+	makeTi();
+	makeLp();
 }
 

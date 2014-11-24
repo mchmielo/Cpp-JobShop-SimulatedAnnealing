@@ -1,15 +1,15 @@
 #include <string>
 //#include "problem.h"
 
-#ifndef PROBLEM_GNIAZDOWY_H
-#define PROBLEM_GNIAZDOWY_H
+#ifndef JOB_SHOP_H
+#define JOB_SHOP_H
 
 /*!
  * \brief Klasa implementuje problem gniazdowy
  *  Umo¿liwia wczytywanie danych z pliku, s³u¿y do harmonogramowania zadañ
  *  w przypadku problemu gniazdowego
  */
-class problem_gniazdowy
+class job_shop
 {
 private:
     int n;      /** liczba operacji*/
@@ -23,20 +23,22 @@ private:
     int *lp;    /** poprzedniki */
     int *ci;    /** czas zakonczenia i-tej operacji */
 	int *ph;	/** tablica pomocnicza w wyznaczaniu œcie¿ki krytycznej*/
-	int *cPath;	/** œcie¿ka krytyczna*/
+	int *cPath;	/** œcie¿ka krytyczna: [liczba_elementow 0 1.element 2.element ... i.element 0]*/
 	int *cPathColor;	/** tablica zapamiêtuj¹ca pocz¹tek i koniec bloku: -1 pocz¹tek bloku, 1 koniec bloku */
+	int *cPathIndexes;	/** tablica zapamiêtuje indexy pocz¹tku i koñca bloku*/
+	int blockSwaps;
 public:
     /*!
-     * \brief problem_gniazdowy - konstruktor bezparametryczny
+     * \brief job_shop - konstruktor bezparametryczny
      *  Wszystkie zmienne s¹ wyzerowane, wskaŸniki ustawione na NULL
      */
-    problem_gniazdowy();
+    job_shop();
 
     /*!
      * \brief Destruktor
      * Gdy wskaŸniki s¹ ró¿ne od NULL, pamiêæ na któr¹ wskazuj¹ zostaje zwolniona.
      */
-    ~problem_gniazdowy();
+    ~job_shop();
     /*!
      * \brief Metoda wczytuj¹ca dane z pliku
      * Wczytywane dane s¹ wpisywane do tablicy pi jako dopuszczalna permutacja problemu.
@@ -73,7 +75,7 @@ public:
 	*/
 	void evalPH(int i);
 	/*!
-	* \brief Metoda pomocnicza funkcji problem_gniazdowy::createSchedule().
+	* \brief Metoda pomocnicza funkcji job_shop::createSchedule().
 	* Oblicza czas zakoñczenia ::i -tej operacji: c_max(i) = max(T[i-1],pi[ps[i]-1])+czas_wykonywania
 	* gdzie T[i-1] to poprzednik technologiczny, pi[ps[i]-1] to poprzednik maszynowy.
 	* \param i  - numer operacji
@@ -86,7 +88,8 @@ public:
 	int findMaxCi();
 	void createCPath();
 	void createBlocks();
+	void swapBlocks();
 
 };
 
-#endif // PROBLEM_GNIAZDOWY_H
+#endif // JOB_SHOP_H

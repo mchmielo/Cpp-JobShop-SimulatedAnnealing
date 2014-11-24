@@ -27,6 +27,7 @@ private:
 	int *cPathColor;	/** tablica zapamiêtuj¹ca pocz¹tek i koniec bloku: -1 pocz¹tek bloku, 1 koniec bloku */
 	int *cPathIndexes;	/** tablica zapamiêtuje indexy pocz¹tku i koñca bloku*/
 	int blockSwaps;
+	int cMax;
 public:
     /*!
      * \brief job_shop - konstruktor bezparametryczny
@@ -89,6 +90,8 @@ public:
 	void createCPath();
 	void createBlocks();
 	void swapBlocks();
+
+	int getCmax();
 
 };
 

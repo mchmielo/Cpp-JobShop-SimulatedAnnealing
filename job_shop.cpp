@@ -24,6 +24,7 @@ job_shop::job_shop()
     m = 0;
     z = 0;
 	blockSwaps = 0;
+	cMax = 0;
 }
 
 job_shop::~job_shop()
@@ -248,6 +249,7 @@ int job_shop::findMaxCi(){
 			max_i =i;
 		}
 	}
+	cMax = max;
 	return max_i;
 }
 
@@ -263,7 +265,7 @@ void job_shop::createCPath(){
 	if (this->cPathColor != NULL)
 		delete this->cPathColor;
 											// alokacja potrzebnej pamieci dla sciezki krytycznej
-	this->cPath = new int[count+3];			// w tym element 0 jest liczb¹ elmentów sk, element drugi i ostatni s¹ zerami
+	this->cPath = new int[count+4];			// w tym element 0 jest liczb¹ elmentów sk, element drugi i ostatni s¹ zerami
 	this->cPathColor = new int[count];		// i blokow
 	for (int i = 0; i < count; ++i){
 		cPathColor[i] = 0;
@@ -280,12 +282,16 @@ void job_shop::createCPath(){
 
 void job_shop::createBlocks(){
 	int index = 0;
+	blockSwaps = 0;
 	for (int i = 2; i < (cPath[0] + 2); ++i){
-		if ((cPath[i + 1] != 0) && (cPath[i + 1] != ti[cPath[i]]) && (pi[ps[cPath[i]] + 1] == cPath[i + 1])){		// pocz¹tek bloku
+
+	//nie jest ostatni w œcie¿ce   //poprzednik w œcie¿ce jest tech.	//nastêpnik w œcie¿ce jest maszynowy
+		if ((cPath[i + 1] != 0) && (cPath[i - 1] == T[cPath[i] - 1]) && (cPath[i + 1] == pi[ps[cPath[i]] + 1])){		// pocz¹tek bloku
 			cPathColor[i - 2] = 1;
 			blockSwaps++;
 		}
-		if ((cPath[i - 1] != 0) && (cPath[i - 1] != T[cPath[i] - 1]) && (pi[ps[cPath[i]] - 1] == cPath[i - 1])){		// koniec bloku
+	//nie jest pierwszy w œcie¿ce   //nastêpnik w œcie¿ce jest tech.	//poprzednik w œcie¿ce jest maszynowy
+		if ((cPath[i - 1] != 0) && (cPath[i + 1] == ti[cPath[i]]) && (cPath[i - 1] == pi[ps[cPath[i]] - 1])){		// koniec bloku
 			cPathColor[i - 2] = -1;
 			blockSwaps++;
 		}
@@ -321,5 +327,9 @@ void job_shop::swapBlocks(){
 	}
 	makeTi();
 	makeLp();
+}
+
+int job_shop::getCmax(){
+	return cMax;
 }
 

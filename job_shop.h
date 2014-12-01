@@ -18,7 +18,7 @@ private:
     int *czasi; /** czas wykonywania i-tej operacji */
     int *pi;    /** struktura przechowujaca permutacje: pi = [0 operacje_maszyny_1 0 operacje_maszyny_2 0 ... 0] */
     int *ti;    /** nastêpniki technologiczne */
-    int *T;
+	int *T;		/** poprzedniki technologiczne potrzebne do wyliczenia ci*/
     int *ps;    /** pozycje i-tych operacji w tabeli permutacji */
     int *lp;    /** poprzedniki */
     int *ci;    /** czas zakonczenia i-tej operacji */

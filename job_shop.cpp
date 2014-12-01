@@ -31,36 +31,47 @@ job_shop::~job_shop()
 {
     if( pi != NULL){
         delete pi;
+		pi = NULL;
     }
     if( ti != NULL){
         delete ti;
+		ti = NULL;
     }
     if( czasi != NULL){
         delete czasi;
+		czasi = NULL;
     }
     if( ps != NULL){
         delete ps;
+		ps = NULL;
     }
     if( lp != NULL){
         delete lp;
+		lp = NULL;
     }
     if( ci != NULL){
         delete ci;
+		ci = NULL;
     }
     if( T != NULL){
         delete T;
+		T = NULL;
     }
 	if (ph != NULL){
 		delete ph;
+		ph = NULL;
 	}
 	if (cPath != NULL){
 		delete cPath;
+		cPath = NULL;
 	}
 	if (cPathColor != NULL){
 		delete cPathColor;
+		cPathColor = NULL;
 	}
 	if (cPathIndexes!= NULL){
 		delete cPathIndexes;
+		cPathIndexes = NULL;
 	}
 }
 

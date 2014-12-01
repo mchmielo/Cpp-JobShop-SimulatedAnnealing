@@ -29,34 +29,38 @@ job_shop::job_shop()
 
 job_shop::~job_shop()
 {
-    if( pi != NULL){
-        delete pi;
+	clearJobShop();
+}
+
+void job_shop::clearJobShop(){
+	if (pi != NULL){
+		delete pi;
 		pi = NULL;
-    }
-    if( ti != NULL){
-        delete ti;
+	}
+	if (ti != NULL){
+		delete ti;
 		ti = NULL;
-    }
-    if( czasi != NULL){
-        delete czasi;
+	}
+	if (czasi != NULL){
+		delete czasi;
 		czasi = NULL;
-    }
-    if( ps != NULL){
-        delete ps;
+	}
+	if (ps != NULL){
+		delete ps;
 		ps = NULL;
-    }
-    if( lp != NULL){
-        delete lp;
+	}
+	if (lp != NULL){
+		delete lp;
 		lp = NULL;
-    }
-    if( ci != NULL){
-        delete ci;
+	}
+	if (ci != NULL){
+		delete ci;
 		ci = NULL;
-    }
-    if( T != NULL){
-        delete T;
+	}
+	if (T != NULL){
+		delete T;
 		T = NULL;
-    }
+	}
 	if (ph != NULL){
 		delete ph;
 		ph = NULL;
@@ -69,10 +73,15 @@ job_shop::~job_shop()
 		delete cPathColor;
 		cPathColor = NULL;
 	}
-	if (cPathIndexes!= NULL){
+	if (cPathIndexes != NULL){
 		delete cPathIndexes;
 		cPathIndexes = NULL;
 	}
+	n = 0;
+	m = 0;
+	z = 0;
+	blockSwaps = 0;
+	cMax = 0;
 }
 
 bool job_shop::readFile(string file)
@@ -340,7 +349,57 @@ void job_shop::swapBlocks(){
 	makeLp();
 }
 
+void job_shop::copyPermutation(job_shop &p){
+	this->clearJobShop();
+	this->n = p.n;
+	this->z = p.z;
+	this->m = p.m;
+	this->blockSwaps = p.blockSwaps;
+	this->cMax = p.cMax;
+
+	this->czasi = new int[this->n + 1];
+	this->pi = new int[this->n + this->m + 1];
+	this->ti = new int[this->n + 1];
+	this->ps = new int[this->n + 1];	
+	this->lp = new int[this->n + 1];
+	this->ci = new int[this->n + 1];
+	this->T = new int[this->n + 1];
+	this->ph = new int[this->n + 1];
+
+	this->cPath = new int[p.cPath[0]+4];			// w tym element 0 jest liczb¹ elmentów sk, element drugi i ostatni s¹ zerami
+	this->cPathColor = new int[p.cPath[0]];
+	this->cPathIndexes = new int[p.blockSwaps];
+
+	for (int i = 0; i < this->n + this->m + 1; ++i){
+		this->pi[i] = p.pi[i];
+	}
+	for (int i = 0; i <= this->n; ++i){
+		this->czasi[i] = p.czasi[i];
+		this->ti[i] = p.ti[i];
+		this->ps[i] = p.ps[i];
+		this->lp[i] = p.lp[i];
+		this->ci[i] = p.ci[i];
+		this->T[i] = p.T[i];
+		this->ph[i] = p.ph[i];
+	}
+
+	for (int i = 0; i < this->blockSwaps; ++i){
+		this->cPathIndexes[i] = p.cPathIndexes[i];
+	}
+	for (int i = 0; i < p.cPath[0]; ++i){
+		this->cPathColor[i] = p.cPathColor[i];
+	}
+	for (int i = 0; i < (p.cPath[0] + 4); ++i){
+		this->cPath[i] = p.cPath[i];
+	}
+}
+
+
 int job_shop::getCmax(){
 	return cMax;
+}
+
+int job_shop::getBlockSwaps(){
+	return blockSwaps;
 }
 

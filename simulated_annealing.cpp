@@ -2,8 +2,8 @@
 
 simulated_annealing::simulated_annealing()
 {
-	currTemp = 10000;
-	bestCmax = INFINITY;
+	currTemp = START_TEMP;
+	bestCmax = static_cast<int>(INFINITY);
 }
 
 simulated_annealing::~simulated_annealing()
@@ -11,7 +11,7 @@ simulated_annealing::~simulated_annealing()
 }
 
 void simulated_annealing::lowerTemp(){
-	currTemp = currTemp*0.9999;
+	currTemp = currTemp-0.01;
 }
 bool simulated_annealing::compareCmaxes(int prevCmax, int currCmax){
 	double rnd = static_cast<double>(rand()%100);
@@ -29,6 +29,8 @@ job_shop &simulated_annealing::getCurrPermutation(){
 }
 
 void simulated_annealing::preparePermutation(){
+	currTemp = START_TEMP;
+	bestCmax = static_cast<int>(INFINITY);
 	currPermutation.createSchedule();
 	currPermutation.createCPath();
 	currPermutation.createBlocks();
@@ -37,8 +39,8 @@ void simulated_annealing::preparePermutation(){
 
 void simulated_annealing::mainAlgorithm(){
 	preparePermutation();
-	while (currTemp > 1){
-		prevPermutation = currPermutation;
+	while (currTemp > 1 && currPermutation.getBlockSwaps()){
+		prevPermutation.copyPermutation(currPermutation);
 		currPermutation.swapBlocks();
 		currPermutation.createSchedule();
 		currPermutation.findMaxCi();
@@ -48,7 +50,7 @@ void simulated_annealing::mainAlgorithm(){
 			currPermutation.createBlocks();
 		}
 		else{
-			currPermutation = prevPermutation;
+			currPermutation.copyPermutation(prevPermutation);
 		}
 		lowerTemp();
 	}

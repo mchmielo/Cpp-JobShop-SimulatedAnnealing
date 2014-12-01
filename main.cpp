@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <Windows.h>
 #include "simulated_annealing.h"
 
 using namespace std;
@@ -32,27 +33,32 @@ vector<string> readFileNames(string file){
 
 int main()
 {
-	simulated_annealing *sa = NULL;
-	srand(time(NULL));
+	simulated_annealing sa;
+
+	unsigned __int64 freq, counterStart, counterStop;	// zmienne do mierzenia czasu dzialania 
+	long double timer;
+
+	srand(static_cast<unsigned int>(time(NULL)));
 	vector<string> fileNames = readFileNames("Data/names.txt");
 	if (!fileNames.empty()){
-		for (int i = 0; i < fileNames.size(); ++i){
+		for (int i = 0; i < static_cast<int>(fileNames.size()); ++i){
 			if (i){
+				timer = 0;
 				string fName = "Data/";
 				fName += fileNames[i];
-				sa = new simulated_annealing();
-				sa->getCurrPermutation().~job_shop();
-				sa->getCurrPermutation().readFile(fName);
-				sa->mainAlgorithm();
-				cout << fName << ", Cmax = " << sa->getBestCmax() << endl;
+				QueryPerformanceFrequency(reinterpret_cast<LARGE_INTEGER*> (&freq));
+				QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*> (&counterStart));	// wystartowanie pomiaru czasu
+
+				sa.getCurrPermutation().clearJobShop();
+				sa.getCurrPermutation().readFile(fName);
+				sa.mainAlgorithm();
+				
+				QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*> (&counterStop));	// koniec pomiaru czasu
+				timer = (static_cast<long double> (counterStop)-counterStart) / freq;
+				cout << fName << ", Cmax = " << sa.getBestCmax() << ",  czas[s] = " << timer << endl;
 			}
 		}
 	}
-	if (sa != NULL){
-		delete sa;
-	}
-
-	//sa->getCurrPermutation().logClass();
 	system("pause");
     return 0;
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include "job_shop.h"
+#define START_TEMP 1000
 
 class simulated_annealing
 {

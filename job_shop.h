@@ -40,6 +40,7 @@ public:
      * Gdy wskaŸniki s¹ ró¿ne od NULL, pamiêæ na któr¹ wskazuj¹ zostaje zwolniona.
      */
     ~job_shop();
+	void clearJobShop();
     /*!
      * \brief Metoda wczytuj¹ca dane z pliku
      * Wczytywane dane s¹ wpisywane do tablicy pi jako dopuszczalna permutacja problemu.
@@ -90,8 +91,10 @@ public:
 	void createCPath();
 	void createBlocks();
 	void swapBlocks();
+	void copyPermutation(job_shop&);
 
 	int getCmax();
+	int getBlockSwaps();
 
 };
 
